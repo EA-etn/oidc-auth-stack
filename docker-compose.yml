@@ -1,0 +1,61 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    ports:
+      - "8080:8080"
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HOSTNAME: ${HOST_IP}
+      KC_HOSTNAME_PORT: "8080"
+    volumes:
+      - ./keycloak_data:/opt/keycloak/data
+      - ./realm-export.json:/opt/keycloak/data/import/realm.json
+    networks:
+      - auth-network
+    restart: unless-stopped
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    command:
+      - --http-address=0.0.0.0:4180
+      - --upstream=http://whoami:80
+      - --provider=keycloak-oidc
+      - --client-id=oauth2-proxy
+      - --client-secret=${OAUTH2_PROXY_CLIENT_SECRET}
+      - --cookie-secret=${OAUTH2_PROXY_COOKIE_SECRET}
+      - --oidc-issuer-url=http://${HOST_IP}:8080/realms/myrealm
+      - --redirect-url=http://${HOST_IP}:8088/oauth2/callback
+      - --email-domain=*
+      - --skip-provider-button=true
+      - --cookie-secure=false
+      - --reverse-proxy=true
+      - --code-challenge-method=S256
+    depends_on:
+      - keycloak
+    networks:
+      - auth-network
+    restart: unless-stopped
+
+  whoami:
+    image: traefik/whoami
+    networks:
+      - auth-network
+
+  caddy:
+    image: caddy:latest
+    ports:
+      - "8088:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - oauth2-proxy
+    networks:
+      - auth-network
+    restart: unless-stopped
+
+networks:
+  auth-network:

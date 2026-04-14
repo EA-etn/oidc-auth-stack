@@ -1,0 +1,17 @@
+:80 {
+    handle /realms/* {
+        reverse_proxy keycloak:8080
+    }
+
+    handle /resources/* {
+        reverse_proxy keycloak:8080
+    }
+
+    handle /admin/* {
+        reverse_proxy keycloak:8080
+    }
+
+    handle {
+        reverse_proxy oauth2-proxy:4180
+    }
+}
