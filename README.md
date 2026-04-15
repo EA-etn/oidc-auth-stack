@@ -40,8 +40,8 @@ It's designed to understand how modern authentication architectures work before 
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USER/auth-lab-keycloak-oauth2-proxy.git
-cd auth-lab-keycloak-oauth2-proxy
+git clone https://github.com/EA-etn/oidc-auth-stack.git
+cd oidc-auth-stack
 ```
 ### 2. Create .env file
 ```bash
@@ -74,7 +74,7 @@ Wait until the 4-minute OAuth2 startup is complete before starting Keycloak
 ### 5. Access the application
 Open your browser and enter your server's IP address and port
 ```bash
-http://<YOUR_IP>:8088
+http://<your_server_local_ip>:8088
 ```
 Log in using the test credentials. For example:
 ```bash
@@ -108,4 +108,4 @@ This lab demonstrates:
 ---
 ### 📄 License
 ---
-This project is licensed under the MIT License
+This project is licensed under the MIT License - see the LICENSE file for details.
